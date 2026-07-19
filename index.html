@@ -1,0 +1,913 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Find My Pet Groomer — Local Grooming Directory</title>
+<style>
+  :root {
+    --ground: #4568b5;
+    --ink: #f6efdd;
+    --ink-soft: #e3dcc0;
+    --card: #5779c4;
+    --accent: #e0a824;
+    --accent-ink: #2e1b08;
+    --accent-2: #f0d199;
+    --line: #8a6e45;
+    --focus: #e0a824;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #17244a;
+      --ink: #f6efdd;
+      --ink-soft: #cfc29c;
+      --card: #22345e;
+      --accent: #f0b93a;
+      --accent-ink: #241404;
+      --accent-2: #efc48a;
+      --line: #7a6440;
+      --focus: #f0b93a;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #17244a;
+    --ink: #f6efdd;
+    --ink-soft: #cfc29c;
+    --card: #22345e;
+    --accent: #f0b93a;
+    --accent-ink: #241404;
+    --accent-2: #efc48a;
+    --line: #7a6440;
+    --focus: #f0b93a;
+  }
+
+  :root[data-theme="light"] {
+    --ground: #4568b5;
+    --ink: #f6efdd;
+    --ink-soft: #e3dcc0;
+    --card: #5779c4;
+    --accent: #e0a824;
+    --accent-ink: #2e1b08;
+    --accent-2: #f0d199;
+    --line: #8a6e45;
+    --focus: #e0a824;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .bubble-decor {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 26%, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.28) 32%, rgba(255, 255, 255, 0.08) 58%, transparent 74%);
+    border: 1px solid rgba(255, 255, 255, 0.32);
+    box-shadow: inset -3px -3px 6px rgba(20, 30, 70, 0.12), inset 2px 2px 3px rgba(255, 255, 255, 0.35);
+    animation: bubble-float 10s ease-in-out infinite;
+  }
+
+  .bubble--tint {
+    background: radial-gradient(circle at 30% 26%, rgba(255, 255, 255, 0.9), rgba(69, 104, 181, 0.35) 34%, rgba(69, 104, 181, 0.12) 60%, transparent 76%);
+    border-color: rgba(69, 104, 181, 0.4);
+    box-shadow: inset -3px -3px 6px rgba(69, 104, 181, 0.18), inset 2px 2px 3px rgba(255, 255, 255, 0.6);
+  }
+
+  @keyframes bubble-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .header-decor .b1 { width: 11px; height: 11px; top: 14px; left: 38%; animation-duration: 8s; }
+  .header-decor .b2 { width: 18px; height: 18px; top: 6px; left: 55%; animation-duration: 11s; animation-delay: -4s; }
+  .header-decor .b3 { width: 8px; height: 8px; top: 30px; left: 64%; animation-duration: 9s; animation-delay: -2s; }
+  .header-decor .b4 { width: 14px; height: 14px; top: 2px; left: 79%; animation-duration: 12s; animation-delay: -6s; }
+  .header-decor .b5 { width: 6px; height: 6px; top: 24px; left: 91%; animation-duration: 7s; animation-delay: -1s; }
+  .header-decor .b6 { width: 22px; height: 22px; top: -6px; left: 95%; animation-duration: 13s; animation-delay: -9s; }
+
+  .hero-decor .c1 { width: 40px; height: 40px; top: 4%; left: 60%; animation-duration: 13s; }
+  .hero-decor .c2 { width: 20px; height: 20px; top: 20%; left: 77%; animation-duration: 9s; animation-delay: -3s; }
+  .hero-decor .c3 { width: 68px; height: 68px; top: 40%; left: 87%; animation-duration: 15s; animation-delay: -7s; }
+  .hero-decor .c4 { width: 14px; height: 14px; top: 63%; left: 68%; animation-duration: 8s; animation-delay: -1s; }
+  .hero-decor .c5 { width: 30px; height: 30px; top: 74%; left: 91%; animation-duration: 11s; animation-delay: -5s; }
+  .hero-decor .c6 { width: 9px; height: 9px; top: 10%; left: 94%; animation-duration: 10s; animation-delay: -8s; }
+  .hero-decor .c7 { width: 16px; height: 16px; top: 8%; left: 69%; animation-duration: 9.5s; animation-delay: -2.5s; }
+  .hero-decor .c8 { width: 48px; height: 48px; top: 58%; left: 78%; animation-duration: 14s; animation-delay: -6s; }
+  .hero-decor .c9 { width: 11px; height: 11px; top: 32%; left: 96%; animation-duration: 7.5s; animation-delay: -3.5s; }
+  .hero-decor .c10 { width: 24px; height: 24px; top: 88%; left: 62%; animation-duration: 12s; animation-delay: -10s; }
+
+  .listings-decor .l1 { width: 20px; height: 20px; top: 2%; left: 4%; animation-duration: 12s; }
+  .listings-decor .l2 { width: 10px; height: 10px; top: 8%; left: 9%; animation-duration: 8s; animation-delay: -3s; }
+  .listings-decor .l3 { width: 30px; height: 30px; top: 1%; left: 95%; animation-duration: 14s; animation-delay: -5s; }
+  .listings-decor .l4 { width: 13px; height: 13px; top: 10%; left: 91%; animation-duration: 9s; animation-delay: -1s; }
+  .listings-decor .l5 { width: 44px; height: 44px; top: 34%; left: 2%; animation-duration: 15s; animation-delay: -6s; }
+  .listings-decor .l6 { width: 16px; height: 16px; top: 52%; left: 6%; animation-duration: 9.5s; animation-delay: -2s; }
+  .listings-decor .l7 { width: 24px; height: 24px; top: 44%; left: 97%; animation-duration: 12.5s; animation-delay: -8s; }
+  .listings-decor .l8 { width: 9px; height: 9px; top: 66%; left: 93%; animation-duration: 7.5s; animation-delay: -4s; }
+  .listings-decor .l9 { width: 34px; height: 34px; top: 78%; left: 3%; animation-duration: 13s; animation-delay: -9s; }
+  .listings-decor .l10 { width: 12px; height: 12px; top: 90%; left: 8%; animation-duration: 8.5s; animation-delay: -3.5s; }
+  .listings-decor .l11 { width: 19px; height: 19px; top: 86%; left: 96%; animation-duration: 10.5s; animation-delay: -5.5s; }
+
+  .signup-decor .s1 { width: 26px; height: 26px; top: 8%; left: 90%; animation-duration: 11s; }
+  .signup-decor .s2 { width: 13px; height: 13px; top: 20%; left: 96%; animation-duration: 8s; animation-delay: -3s; }
+  .signup-decor .s3 { width: 9px; height: 9px; top: 4%; left: 3%; animation-duration: 9s; animation-delay: -5s; }
+  .signup-decor .s4 { width: 17px; height: 17px; top: 82%; left: 6%; animation-duration: 12s; animation-delay: -2s; }
+  .signup-decor .s5 { width: 38px; height: 38px; top: 55%; left: 94%; animation-duration: 14s; animation-delay: -7s; }
+  .signup-decor .s6 { width: 21px; height: 21px; top: 40%; left: 1%; animation-duration: 10s; animation-delay: -1.5s; }
+  .signup-decor .s7 { width: 11px; height: 11px; top: 68%; left: 88%; animation-duration: 8.5s; animation-delay: -6s; }
+
+  .footer-decor .f1 { width: 12px; height: 12px; top: 20%; left: 12%; animation-duration: 10s; }
+  .footer-decor .f2 { width: 7px; height: 7px; top: 55%; left: 6%; animation-duration: 8s; animation-delay: -2s; }
+  .footer-decor .f3 { width: 15px; height: 15px; top: 30%; left: 96%; animation-duration: 11s; animation-delay: -4s; }
+  .footer-decor .f4 { width: 22px; height: 22px; top: 10%; left: 55%; animation-duration: 13s; animation-delay: -5s; }
+  .footer-decor .f5 { width: 9px; height: 9px; top: 60%; left: 38%; animation-duration: 9s; animation-delay: -3s; }
+
+  .wrap {
+    max-width: 74rem;
+    margin: 0 auto;
+    padding: 0 1.75rem;
+  }
+
+  a { color: inherit; }
+
+  .mono {
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+  }
+
+  .eyebrow {
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    font-weight: 600;
+  }
+
+  h1, h2, h3 {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+    font-weight: 400;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  :focus-visible {
+    outline: 2.5px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+
+  /* ---------- header ---------- */
+
+  header.site {
+    position: relative;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .site-bar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.15rem 0;
+  }
+
+  .wordmark {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+  }
+
+  .comb {
+    display: flex;
+    align-items: flex-end;
+    gap: 2.5px;
+    height: 18px;
+  }
+
+  .comb span {
+    display: block;
+    width: 2.5px;
+    background: var(--accent);
+    border-radius: 1px;
+  }
+
+  .comb span:nth-child(1) { height: 60%; }
+  .comb span:nth-child(2) { height: 100%; }
+  .comb span:nth-child(3) { height: 75%; }
+  .comb span:nth-child(4) { height: 100%; }
+  .comb span:nth-child(5) { height: 60%; }
+
+  .wordmark-text {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.01em;
+  }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+    font-size: 0.92rem;
+  }
+
+  .site-nav a {
+    text-decoration: none;
+    color: var(--ink-soft);
+  }
+
+  .site-nav a:hover { color: var(--ink); }
+
+  .nav-cta {
+    background: var(--accent);
+    color: var(--accent-ink) !important;
+    padding: 0.5rem 1rem;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+
+  /* ---------- hero ---------- */
+
+  .hero {
+    position: relative;
+    padding: 4.5rem 0 3.5rem;
+  }
+
+  .hero-flex {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-inner {
+    flex: 1 1 20rem;
+    min-width: 0;
+    max-width: 40rem;
+  }
+
+  .hero-illustration {
+    flex: 0 0 auto;
+    width: clamp(200px, 24vw, 300px);
+  }
+
+  .hero-illustration svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .tub-body { fill: var(--ink); stroke: var(--line); stroke-width: 4; }
+  .tub-feet { fill: var(--line); }
+  .tub-water { fill: #e7f1ff; stroke: var(--line); stroke-width: 3; }
+  .tub-suds { fill: #ffffff; }
+  .dog-ear { fill: #a97b3e; }
+  .dog-head { fill: #c9954f; }
+  .dog-muzzle { fill: var(--ink); }
+  .dog-nose { fill: #2e1b08; }
+  .dog-eye { fill: none; stroke: #2e1b08; stroke-width: 3; stroke-linecap: round; }
+  .dog-smile { fill: none; stroke: #2e1b08; stroke-width: 3; stroke-linecap: round; }
+  .dog-tongue { fill: #e2897f; }
+  .dog-paw { fill: #c9954f; }
+  .ground-shadow { fill: var(--line); }
+
+  .dog-group {
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    animation: dog-bob 4s ease-in-out infinite;
+  }
+
+  @keyframes dog-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+
+  .rise-bubble {
+    fill: rgba(255, 255, 255, 0.55);
+    stroke: rgba(255, 255, 255, 0.85);
+    stroke-width: 1.5;
+    transform-box: fill-box;
+    transform-origin: 50% 50%;
+    animation: rise linear infinite;
+  }
+
+  @keyframes rise {
+    0% { transform: translate(0, 0); opacity: 0; }
+    12% { opacity: 0.9; }
+    78% { opacity: 0.85; }
+    100% { transform: translate(var(--dx, 0px), -115px); opacity: 0; }
+  }
+
+  .hero h1 {
+    font-size: clamp(2.4rem, 4.4vw + 1rem, 3.6rem);
+    line-height: 1.08;
+    margin-top: 0.6rem;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-lead {
+    font-size: 1.15rem;
+    color: var(--ink-soft);
+    max-width: 34rem;
+    margin-top: 1.1rem;
+  }
+
+  .search-panel {
+    margin-top: 2.25rem;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    box-shadow: 0 1px 0 var(--line);
+  }
+
+  .search-panel input,
+  .search-panel select {
+    font: inherit;
+    font-size: 0.95rem;
+    color: var(--ink);
+    background: var(--ground);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0.62rem 0.8rem;
+  }
+
+  .search-panel input { flex: 1 1 12rem; }
+  .search-panel select { flex: 1 1 11rem; }
+
+  .search-btn {
+    flex: 0 0 auto;
+    background: var(--ink);
+    color: var(--ground);
+    border: none;
+    border-radius: 4px;
+    padding: 0.62rem 1.35rem;
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .search-btn:hover { background: var(--accent); color: var(--accent-ink); }
+
+  .hero-note {
+    margin-top: 0.85rem;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- listings ---------- */
+
+  .listings {
+    position: relative;
+    padding: 3.75rem 0 4rem;
+  }
+
+  .listings > .wrap {
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.25rem;
+  }
+
+  .section-head h2 {
+    font-size: 1.9rem;
+  }
+
+  .section-head p {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    max-width: 22rem;
+    margin: 0;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15.5rem, 1fr));
+    gap: 2.75rem 1.5rem;
+  }
+
+  .card {
+    position: relative;
+    display: block;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  a.card {
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+  }
+
+  a.card:hover,
+  a.card:focus-visible {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 22px rgba(15, 25, 60, 0.22);
+  }
+
+  .card::before,
+  .card::after {
+    content: "";
+    position: absolute;
+    top: 6.4rem;
+    width: 18px;
+    height: 18px;
+    background: var(--ground);
+    border: 1px solid var(--line);
+    border-radius: 50%;
+  }
+
+  .card::before { left: -10px; }
+  .card::after { right: -10px; }
+
+  .card-head {
+    padding: 1.3rem 1.4rem 1.15rem;
+  }
+
+  .card-name {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    font-size: 1.28rem;
+  }
+
+  .card-neighborhood {
+    margin-top: 0.3rem;
+    font-size: 0.85rem;
+    color: var(--accent-2);
+    font-weight: 600;
+  }
+
+  .perf {
+    height: 12px;
+    background-image: radial-gradient(circle at center, var(--ground) 3px, transparent 3.4px);
+    background-size: 16px 12px;
+    background-repeat: repeat-x;
+    background-position: 8px center;
+  }
+
+  .card-body {
+    padding: 1.15rem 1.4rem 1.5rem;
+  }
+
+  .tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.95rem;
+  }
+
+  .tag {
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.28rem 0.55rem;
+    border-radius: 2px;
+  }
+
+  .tag-specialty {
+    background: color-mix(in srgb, var(--accent-2) 18%, transparent);
+    color: var(--accent-2);
+    border: 1px solid color-mix(in srgb, var(--accent-2) 45%, transparent);
+  }
+
+  .tag-price {
+    background: color-mix(in srgb, var(--accent) 16%, transparent);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 45%, transparent);
+    font-weight: 700;
+    transform: rotate(-1.5deg);
+  }
+
+  .card-bio {
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+    margin: 0;
+  }
+
+  /* ---------- signup ---------- */
+
+  .signup {
+    position: relative;
+    background: var(--ink);
+    color: var(--ground);
+    padding: 4rem 0;
+  }
+
+  .signup .wrap {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .signup h2 {
+    color: var(--ground);
+    font-size: 2.1rem;
+  }
+
+  .signup .eyebrow { color: var(--accent); }
+
+  .signup-copy p {
+    color: color-mix(in srgb, var(--ground) 78%, transparent);
+    max-width: 26rem;
+    margin-top: 1rem;
+    font-size: 1rem;
+  }
+
+  .signup-list {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    font-size: 0.9rem;
+    color: color-mix(in srgb, var(--ground) 85%, transparent);
+  }
+
+  .signup-list li { display: flex; gap: 0.6rem; }
+  .signup-list li::before {
+    content: "—";
+    color: var(--accent);
+    flex: 0 0 auto;
+  }
+
+  .signup-form {
+    background: color-mix(in srgb, var(--ground) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--ground) 22%, transparent);
+    border-radius: 6px;
+    padding: 1.75rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .field label {
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--ground) 70%, transparent);
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+  }
+
+  .field input {
+    font: inherit;
+    font-size: 0.95rem;
+    background: color-mix(in srgb, var(--ground) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--ground) 30%, transparent);
+    border-radius: 4px;
+    padding: 0.65rem 0.75rem;
+    color: var(--ground);
+  }
+
+  .field input::placeholder { color: color-mix(in srgb, var(--ground) 45%, transparent); }
+
+  .submit-btn {
+    width: 100%;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: none;
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    font: inherit;
+    font-size: 0.98rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 0.3rem;
+  }
+
+  .submit-btn:hover { filter: brightness(1.08); }
+
+  .form-note {
+    font-size: 0.78rem;
+    color: color-mix(in srgb, var(--ground) 55%, transparent);
+    margin: 0.9rem 0 0;
+  }
+
+  @media (max-width: 44rem) {
+    .signup .wrap { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- footer ---------- */
+
+  footer.site {
+    position: relative;
+    padding: 2rem 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .footer-row {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="bubble-decor header-decor" aria-hidden="true">
+    <span class="bubble b1"></span>
+    <span class="bubble b2"></span>
+    <span class="bubble b3"></span>
+    <span class="bubble b4"></span>
+    <span class="bubble b5"></span>
+    <span class="bubble b6"></span>
+  </div>
+  <div class="wrap site-bar">
+    <a class="wordmark" href="#top">
+      <span class="comb" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>
+      <span class="wordmark-text">Find My Pet Groomer</span>
+    </a>
+    <nav class="site-nav">
+      <a href="#listings">Browse groomers</a>
+      <a href="#signup" class="nav-cta">List Your Business</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero">
+    <div class="bubble-decor hero-decor" aria-hidden="true">
+      <span class="bubble c1"></span>
+      <span class="bubble c2"></span>
+      <span class="bubble c3"></span>
+      <span class="bubble c4"></span>
+      <span class="bubble c5"></span>
+      <span class="bubble c6"></span>
+      <span class="bubble c7"></span>
+      <span class="bubble c8"></span>
+      <span class="bubble c9"></span>
+      <span class="bubble c10"></span>
+    </div>
+    <div class="wrap hero-flex">
+      <div class="hero-illustration">
+        <svg viewBox="0 0 300 240" role="img" aria-label="Illustration of a cartoon dog sitting in a bathtub with its eyes closed, smiling contentedly with its tongue slightly out, surrounded by soap bubbles that spill over the tub's edge onto the floor">
+          <rect class="tub-feet" x="54" y="222" width="16" height="10" rx="4" />
+          <rect class="tub-feet" x="230" y="222" width="16" height="10" rx="4" />
+          <rect class="tub-body" x="40" y="150" width="220" height="76" rx="38" />
+          <ellipse class="tub-water" cx="150" cy="150" rx="100" ry="24" />
+          <circle class="tub-suds" cx="107" cy="139" r="13" opacity="0.9" />
+          <circle class="tub-suds" cx="131" cy="129" r="10" opacity="0.85" />
+          <circle class="tub-suds" cx="157" cy="135" r="12" opacity="0.9" />
+          <circle class="tub-suds" cx="184" cy="141" r="9" opacity="0.85" />
+          <circle class="tub-suds" cx="119" cy="141" r="7" opacity="0.85" />
+          <circle class="tub-suds" cx="170" cy="130" r="8" opacity="0.85" />
+          <circle class="tub-suds" cx="199" cy="147" r="7" opacity="0.8" />
+
+          <ellipse class="ground-shadow" cx="150" cy="234" rx="128" ry="7" opacity="0.25" />
+          <circle class="tub-suds" cx="32" cy="215" r="7" opacity="0.85" />
+          <circle class="tub-suds" cx="17" cy="227" r="5" opacity="0.8" />
+          <circle class="tub-suds" cx="8" cy="234" r="3.5" opacity="0.7" />
+          <circle class="tub-suds" cx="268" cy="213" r="6" opacity="0.85" />
+          <circle class="tub-suds" cx="284" cy="225" r="5" opacity="0.8" />
+          <circle class="tub-suds" cx="294" cy="233" r="3.5" opacity="0.7" />
+
+          <g class="dog-group">
+            <ellipse class="dog-ear" cx="104" cy="142" rx="17" ry="38" transform="rotate(-15 104 142)" />
+            <ellipse class="dog-ear" cx="196" cy="142" rx="17" ry="38" transform="rotate(15 196 142)" />
+            <ellipse class="dog-paw" cx="116" cy="182" rx="16" ry="10" />
+            <ellipse class="dog-paw" cx="184" cy="182" rx="16" ry="10" />
+            <circle class="dog-head" cx="150" cy="124" r="44" />
+            <ellipse class="dog-muzzle" cx="150" cy="152" rx="25" ry="21" />
+            <path class="dog-eye" d="M128,118 Q136,111 144,118" />
+            <path class="dog-eye" d="M156,118 Q164,111 172,118" />
+            <ellipse class="dog-nose" cx="150" cy="163" rx="7" ry="5" />
+            <path class="dog-smile" d="M132,169 Q150,181 168,169" />
+            <ellipse class="dog-tongue" cx="150" cy="183" rx="5" ry="7" />
+          </g>
+
+          <circle class="tub-suds" cx="70" cy="118" r="7" opacity="0.85" />
+          <circle class="tub-suds" cx="230" cy="115" r="6" opacity="0.85" />
+          <circle class="tub-suds" cx="90" cy="88" r="5" opacity="0.8" />
+          <circle class="tub-suds" cx="210" cy="84" r="5" opacity="0.8" />
+          <circle class="tub-suds" cx="150" cy="64" r="4.5" opacity="0.8" />
+
+          <circle class="rise-bubble" cx="95" cy="128" r="6" style="--dx:8px; animation-duration:7s; animation-delay:-1s;" />
+          <circle class="rise-bubble" cx="205" cy="132" r="5" style="--dx:-10px; animation-duration:8.5s; animation-delay:-4s;" />
+          <circle class="rise-bubble" cx="150" cy="118" r="4" style="--dx:6px; animation-duration:6s; animation-delay:-2.5s;" />
+          <circle class="rise-bubble" cx="120" cy="122" r="7" style="--dx:-6px; animation-duration:9s; animation-delay:-6s;" />
+          <circle class="rise-bubble" cx="178" cy="120" r="5" style="--dx:9px; animation-duration:7.5s; animation-delay:-3.5s;" />
+          <circle class="rise-bubble" cx="163" cy="130" r="3.5" style="--dx:-5px; animation-duration:6.5s; animation-delay:-5s;" />
+          <circle class="rise-bubble" cx="70" cy="112" r="5" style="--dx:-6px; animation-duration:8s; animation-delay:-2s;" />
+          <circle class="rise-bubble" cx="228" cy="118" r="4.5" style="--dx:7px; animation-duration:7.2s; animation-delay:-3.2s;" />
+          <circle class="rise-bubble" cx="55" cy="140" r="4" style="--dx:5px; animation-duration:9.5s; animation-delay:-4.5s;" />
+          <circle class="rise-bubble" cx="245" cy="136" r="5.5" style="--dx:-8px; animation-duration:6.8s; animation-delay:-1.5s;" />
+          <circle class="rise-bubble" cx="135" cy="88" r="3.5" style="--dx:4px; animation-duration:8.8s; animation-delay:-5.8s;" />
+          <circle class="rise-bubble" cx="185" cy="84" r="4" style="--dx:-5px; animation-duration:7.6s; animation-delay:-2.8s;" />
+          <circle class="rise-bubble" cx="150" cy="70" r="3" style="--dx:6px; animation-duration:9.2s; animation-delay:-6.5s;" />
+        </svg>
+      </div>
+      <div class="hero-inner">
+      <p class="eyebrow">A directory for pet parents</p>
+      <h1>Find a groomer your pet <em>actually</em> likes.</h1>
+      <p class="hero-lead">Browse real local groomers by neighborhood, specialty, and price — no algorithm deciding who shows up first, just shops worth the drive (or the walk).</p>
+
+      <form class="search-panel" aria-label="Search groomers">
+        <input type="text" placeholder="Neighborhood or ZIP code" aria-label="Neighborhood or ZIP code" />
+        <select aria-label="Specialty">
+          <option>All specialties</option>
+          <option>Full-service</option>
+          <option>Cats &amp; small pets</option>
+          <option>Doodles &amp; hand-stripping</option>
+          <option>Mobile grooming</option>
+        </select>
+        <button type="submit" class="search-btn">Search groomers</button>
+      </form>
+      <p class="hero-note">Showing example listings below — search is illustrative on this preview.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="listings" id="listings">
+    <div class="bubble-decor listings-decor" aria-hidden="true">
+      <span class="bubble l1"></span>
+      <span class="bubble l2"></span>
+      <span class="bubble l3"></span>
+      <span class="bubble l4"></span>
+      <span class="bubble l5"></span>
+      <span class="bubble l6"></span>
+      <span class="bubble l7"></span>
+      <span class="bubble l8"></span>
+      <span class="bubble l9"></span>
+      <span class="bubble l10"></span>
+      <span class="bubble l11"></span>
+    </div>
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Groomers near you</h2>
+        <p>A sample of the kind of listings pet owners find on Find My Pet Groomer.</p>
+      </div>
+
+      <div class="card-grid">
+        <a class="card" href="shear-delight-grooming.html">
+          <div class="card-head">
+            <h3 class="card-name">Shear Delight Grooming</h3>
+            <p class="card-neighborhood">Maple Heights</p>
+          </div>
+          <div class="perf" aria-hidden="true"></div>
+          <div class="card-body">
+            <div class="tag-row">
+              <span class="tag tag-specialty">Full-service, all breeds</span>
+              <span class="tag tag-price">$45–$85</span>
+            </div>
+            <p class="card-bio">Family-run since 2011, with a waiting room that smells like lavender instead of wet dog. Walk-ins welcome on weekdays.</p>
+          </div>
+        </a>
+
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-name">The Doodle Den</h3>
+            <p class="card-neighborhood">Brookfield</p>
+          </div>
+          <div class="perf" aria-hidden="true"></div>
+          <div class="card-body">
+            <div class="tag-row">
+              <span class="tag tag-specialty">Doodles &amp; hand-stripping</span>
+              <span class="tag tag-price">$65–$120</span>
+            </div>
+            <p class="card-bio">Specializes in the shaggy-but-tidy doodle cut and hand-stripped terrier coats. Booked out three weeks during shedding season.</p>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-name">Whisker Works</h3>
+            <p class="card-neighborhood">Old Town</p>
+          </div>
+          <div class="perf" aria-hidden="true"></div>
+          <div class="card-body">
+            <div class="tag-row">
+              <span class="tag tag-specialty">Cats &amp; small pets</span>
+              <span class="tag tag-price">$40–$70</span>
+            </div>
+            <p class="card-bio">A quiet, dog-free studio built for cats who'd rather not share a waiting room. Sedation-free nail trims are the specialty.</p>
+          </div>
+        </article>
+
+        <article class="card">
+          <div class="card-head">
+            <h3 class="card-name">Gentle Paws Mobile Grooming</h3>
+            <p class="card-neighborhood">Serves all of Riverside</p>
+          </div>
+          <div class="perf" aria-hidden="true"></div>
+          <div class="card-body">
+            <div class="tag-row">
+              <span class="tag tag-specialty">Senior &amp; anxious pets, mobile</span>
+              <span class="tag tag-price">$75–$130</span>
+            </div>
+            <p class="card-bio">A van, a ramp, and a lot of patience — grooming done in your driveway for pets who get anxious at the vet or in a salon.</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="signup" id="signup">
+    <div class="bubble-decor signup-decor" aria-hidden="true">
+      <span class="bubble bubble--tint s1"></span>
+      <span class="bubble bubble--tint s2"></span>
+      <span class="bubble bubble--tint s3"></span>
+      <span class="bubble bubble--tint s4"></span>
+      <span class="bubble bubble--tint s5"></span>
+      <span class="bubble bubble--tint s6"></span>
+      <span class="bubble bubble--tint s7"></span>
+    </div>
+    <div class="wrap">
+      <div class="signup-copy">
+        <p class="eyebrow">For grooming businesses</p>
+        <h2>Own a grooming business?</h2>
+        <p>Get listed where pet owners are already looking. Setup takes about five minutes, and there's no cost to create your first listing.</p>
+        <ul class="signup-list">
+          <li>Show up in neighborhood and specialty searches</li>
+          <li>Publish your price range so the right clients find you</li>
+          <li>Update your listing anytime — no waiting on a webmaster</li>
+        </ul>
+      </div>
+
+      <form class="signup-form" aria-label="List your grooming business">
+        <div class="field">
+          <label for="biz-name">Business name</label>
+          <input id="biz-name" type="text" placeholder="e.g. Shear Delight Grooming" />
+        </div>
+        <div class="field">
+          <label for="biz-neighborhood">Neighborhood</label>
+          <input id="biz-neighborhood" type="text" placeholder="e.g. Maple Heights" />
+        </div>
+        <div class="field">
+          <label for="biz-email">Email</label>
+          <input id="biz-email" type="email" placeholder="you@yourshop.com" />
+        </div>
+        <button type="submit" class="submit-btn">Request a listing</button>
+        <p class="form-note">We'll follow up to verify your business before it goes live.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="bubble-decor footer-decor" aria-hidden="true">
+    <span class="bubble f1"></span>
+    <span class="bubble f2"></span>
+    <span class="bubble f3"></span>
+    <span class="bubble f4"></span>
+    <span class="bubble f5"></span>
+  </div>
+  <div class="wrap footer-row">
+    <span>Find My Pet Groomer — a local grooming directory.</span>
+    <span>Listings shown above are examples for preview purposes.</span>
+  </div>
+</footer>
+
+</body>
+</html>
