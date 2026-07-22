@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Find My Pet Groomer — Local Grooming Directory</title>
 <link rel="stylesheet" href="bubble-transition.css">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root {
     --ground: #4568b5;
@@ -524,6 +525,22 @@
     margin: 0;
   }
 
+  .card-contact {
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    margin: 0.75rem 0 0;
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+  }
+
+  .live-listings-status {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+  }
+
+  .live-listings-status.is-error {
+    color: var(--error, #f3a0a0);
+  }
+
   /* ---------- signup ---------- */
 
   .signup {
@@ -674,6 +691,7 @@
     </a>
     <nav class="site-nav">
       <a href="#listings">Browse groomers</a>
+      <a href="login.html" id="auth-nav-link" data-no-transition>Groomer Login</a>
       <a href="#signup" class="nav-cta">List Your Business</a>
     </nav>
   </div>
@@ -856,6 +874,17 @@
     </div>
   </section>
 
+  <section class="listings" id="live-listings">
+    <div class="wrap">
+      <div class="section-head">
+        <h2>Newly listed groomers</h2>
+        <p>Real businesses that have added themselves to Find My Pet Groomer.</p>
+      </div>
+      <p class="live-listings-status" id="live-listings-status">Loading groomers&hellip;</p>
+      <div class="card-grid" id="live-listings-grid"></div>
+    </div>
+  </section>
+
   <section class="signup" id="signup">
     <div class="bubble-decor signup-decor" aria-hidden="true">
       <span class="bubble bubble--tint s1"></span>
@@ -911,6 +940,87 @@
     <span>Listings shown above are examples for preview purposes.</span>
   </div>
 </footer>
+
+<script>
+  const supabaseUrl = 'https://sknocllmsrkgpspfuzlp.supabase.co';
+  const supabaseKey = 'sb_publishable_wXBIDKIykBGKDgCKAp_vjA_WrYUstH_';
+  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+  const authLink = document.getElementById('auth-nav-link');
+  const statusEl = document.getElementById('live-listings-status');
+  const gridEl = document.getElementById('live-listings-grid');
+
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  // Built with createElement/textContent rather than innerHTML — these
+  // fields come from the public signup form in profile.html, so treat them
+  // as untrusted text, not markup.
+  function buildLiveCard(row) {
+    const card = el('article', 'card');
+
+    const head = el('div', 'card-head');
+    head.appendChild(el('h3', 'card-name', row.business_name || 'Unnamed business'));
+    if (row.city) head.appendChild(el('p', 'card-neighborhood', row.city));
+    card.appendChild(head);
+
+    const perf = el('div', 'perf');
+    perf.setAttribute('aria-hidden', 'true');
+    card.appendChild(perf);
+
+    const body = el('div', 'card-body');
+    if (row.services) {
+      const tagRow = el('div', 'tag-row');
+      tagRow.appendChild(el('span', 'tag tag-specialty', row.services));
+      body.appendChild(tagRow);
+    }
+    if (row.bio) body.appendChild(el('p', 'card-bio', row.bio));
+
+    const contactParts = [row.phone, row.email].filter(Boolean);
+    if (contactParts.length) body.appendChild(el('p', 'card-contact', contactParts.join(' · ')));
+
+    card.appendChild(body);
+    return card;
+  }
+
+  async function updateAuthNav() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session && authLink) {
+      authLink.textContent = 'My Profile';
+      authLink.setAttribute('href', 'profile.html');
+    }
+  }
+
+  async function loadLiveListings() {
+    const { data, error } = await supabase
+      .from('Groomers')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      statusEl.textContent = "Couldn't load live listings right now.";
+      statusEl.classList.add('is-error');
+      return;
+    }
+
+    if (!data || !data.length) {
+      statusEl.textContent = 'No groomers have listed themselves yet — be the first!';
+      return;
+    }
+
+    statusEl.style.display = 'none';
+    data.forEach(function (row) {
+      gridEl.appendChild(buildLiveCard(row));
+    });
+  }
+
+  updateAuthNav();
+  loadLiveListings();
+</script>
 
 </body>
 </html>

@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>My Groomer Profile — Find My Pet Groomer</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root {
+    --ground: #4568b5;
+    --ink: #f6efdd;
+    --ink-soft: #e3dcc0;
+    --card: #5779c4;
+    --accent: #e0a824;
+    --accent-ink: #2e1b08;
+    --accent-2: #f0d199;
+    --line: #8a6e45;
+    --focus: #e0a824;
+    --error: #f3a0a0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #17244a;
+      --ink: #f6efdd;
+      --ink-soft: #cfc29c;
+      --card: #22345e;
+      --accent: #f0b93a;
+      --accent-ink: #241404;
+      --accent-2: #efc48a;
+      --line: #7a6440;
+      --focus: #f0b93a;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.55;
+  }
+
+  a { color: inherit; }
+
+  h1 {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    font-weight: 400;
+    margin: 0;
+  }
+
+  :focus-visible {
+    outline: 2.5px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  header.site {
+    border-bottom: 1px solid var(--line);
+  }
+  .site-bar {
+    max-width: 74rem;
+    margin: 0 auto;
+    padding: 1.15rem 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .wordmark {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+  }
+  .comb {
+    display: flex;
+    align-items: flex-end;
+    gap: 2.5px;
+    height: 18px;
+  }
+  .comb span {
+    display: block;
+    width: 2.5px;
+    background: var(--accent);
+    border-radius: 1px;
+  }
+  .comb span:nth-child(1) { height: 60%; }
+  .comb span:nth-child(2) { height: 100%; }
+  .comb span:nth-child(3) { height: 75%; }
+  .comb span:nth-child(4) { height: 100%; }
+  .comb span:nth-child(5) { height: 60%; }
+  .wordmark-text {
+    font-family: Georgia, serif;
+    font-size: 1.15rem;
+  }
+
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.85rem;
+  }
+  .header-actions .user-email {
+    color: var(--ink-soft);
+  }
+  .logout-btn {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink);
+    padding: 0.45rem 0.9rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.85rem;
+  }
+  .logout-btn:hover { background: color-mix(in srgb, var(--ground) 40%, transparent); }
+
+  main {
+    max-width: 40rem;
+    margin: 0 auto;
+    padding: 3rem 1.75rem 4rem;
+  }
+
+  .eyebrow {
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    font-weight: 600;
+  }
+
+  main h1 { font-size: 1.9rem; margin-top: 0.5rem; }
+  main p.sub {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    margin-top: 0.6rem;
+    margin-bottom: 2rem;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 2rem;
+  }
+
+  form { display: flex; flex-direction: column; }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1.2rem;
+  }
+  .field label {
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+  }
+  .field input, .field textarea {
+    font: inherit;
+    font-size: 0.95rem;
+    background: color-mix(in srgb, var(--ground) 40%, transparent);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 0.65rem 0.75rem;
+    color: var(--ink);
+  }
+  .field textarea { resize: vertical; min-height: 6rem; font-family: inherit; }
+  .field input::placeholder, .field textarea::placeholder { color: color-mix(in srgb, var(--ink) 50%, transparent); }
+  .field .hint { font-size: 0.75rem; color: var(--ink-soft); }
+
+  .save-btn {
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: none;
+    border-radius: 4px;
+    padding: 0.8rem 1rem;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 0.3rem;
+  }
+  .save-btn:hover { filter: brightness(1.08); }
+  .save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .message {
+    margin-top: 1rem;
+    padding: 0.7rem 0.85rem;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    display: none;
+  }
+  .message.error {
+    background: color-mix(in srgb, var(--error) 20%, transparent);
+    color: var(--error);
+    border: 1px solid color-mix(in srgb, var(--error) 40%, transparent);
+    display: block;
+  }
+  .message.success {
+    background: color-mix(in srgb, var(--accent-2) 20%, transparent);
+    color: var(--accent-2);
+    border: 1px solid color-mix(in srgb, var(--accent-2) 40%, transparent);
+    display: block;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 4rem 0;
+    color: var(--ink-soft);
+  }
+
+  footer.site {
+    border-top: 1px solid var(--line);
+    padding: 1.25rem 1.75rem;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <div class="site-bar">
+    <a class="wordmark" href="index.html">
+      <span class="comb" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>
+      <span class="wordmark-text">Find My Pet Groomer</span>
+    </a>
+    <div class="header-actions">
+      <span class="user-email" id="user-email"></span>
+      <button class="logout-btn" onclick="logout()" type="button">Log Out</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="loading" class="loading">Loading your profile...</div>
+
+  <div id="content" style="display:none;">
+    <p class="eyebrow">Groomer portal</p>
+    <h1>My Listing</h1>
+    <p class="sub">This information appears publicly on your listing. Keep it accurate and up to date.</p>
+
+    <div class="card">
+      <form id="profile-form">
+        <div class="field">
+          <label for="business_name">Business name</label>
+          <input type="text" id="business_name" required placeholder="e.g. Shear Delight Grooming" />
+        </div>
+        <div class="field">
+          <label for="city">Neighborhood / city</label>
+          <input type="text" id="city" required placeholder="e.g. Maple Heights" />
+        </div>
+        <div class="field">
+          <label for="services">Services offered</label>
+          <input type="text" id="services" placeholder="e.g. bathing, nail trim, haircut, hand-stripping" />
+        </div>
+        <div class="field">
+          <label for="bio">Short bio</label>
+          <textarea id="bio" placeholder="Tell pet owners about your business..."></textarea>
+        </div>
+        <div class="field">
+          <label for="phone">Public phone number</label>
+          <input type="text" id="phone" />
+        </div>
+        <div class="field">
+          <label for="email">Public contact email</label>
+          <input type="email" id="email" placeholder="Can be different from your login email" />
+          <div class="hint">This is shown to pet owners — it doesn't have to match your login email.</div>
+        </div>
+        <button type="submit" class="save-btn" id="save-btn">Save listing</button>
+      </form>
+      <div class="message" id="message"></div>
+    </div>
+  </div>
+</main>
+
+<footer class="site">Find My Pet Groomer — a local grooming directory.</footer>
+
+<script>
+  const supabaseUrl = 'https://sknocllmsrkgpspfuzlp.supabase.co';
+  const supabaseKey = 'sb_publishable_wXBIDKIykBGKDgCKAp_vjA_WrYUstH_';
+  const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+  const loadingEl = document.getElementById('loading');
+  const contentEl = document.getElementById('content');
+  const messageBox = document.getElementById('message');
+  const form = document.getElementById('profile-form');
+
+  let currentUser = null;
+  let existingRowId = null;
+
+  function showMessage(text, type) {
+    messageBox.textContent = text;
+    messageBox.className = 'message ' + type;
+  }
+
+  async function init() {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      window.location.href = 'login.html';
+      return;
+    }
+    currentUser = session.user;
+    document.getElementById('user-email').textContent = currentUser.email;
+
+    const { data } = await supabase
+      .from('Groomers')
+      .select('*')
+      .eq('owner_id', currentUser.id)
+      .maybeSingle();
+
+    if (data) {
+      existingRowId = data.id;
+      document.getElementById('business_name').value = data.business_name || '';
+      document.getElementById('city').value = data.city || '';
+      document.getElementById('services').value = data.services || '';
+      document.getElementById('bio').value = data.bio || '';
+      document.getElementById('phone').value = data.phone || '';
+      document.getElementById('email').value = data.email || '';
+    }
+
+    loadingEl.style.display = 'none';
+    contentEl.style.display = 'block';
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('save-btn');
+    btn.disabled = true;
+
+    const payload = {
+      owner_id: currentUser.id,
+      business_name: document.getElementById('business_name').value,
+      city: document.getElementById('city').value,
+      services: document.getElementById('services').value,
+      bio: document.getElementById('bio').value,
+      phone: document.getElementById('phone').value,
+      email: document.getElementById('email').value,
+    };
+
+    let result;
+    if (existingRowId) {
+      result = await supabase.from('Groomers').update(payload).eq('id', existingRowId);
+    } else {
+      result = await supabase.from('Groomers').insert(payload).select().single();
+      if (result.data) existingRowId = result.data.id;
+    }
+
+    btn.disabled = false;
+
+    if (result.error) {
+      showMessage('Error saving listing: ' + result.error.message, 'error');
+    } else {
+      showMessage('Listing saved!', 'success');
+    }
+  });
+
+  async function logout() {
+    await supabase.auth.signOut();
+    window.location.href = 'login.html';
+  }
+
+  init();
+</script>
+
+</body>
+</html>
