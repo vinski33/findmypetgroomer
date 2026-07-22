@@ -1,8 +1,22 @@
-/* Let supporting browsers hold the outgoing page on screen and cross-fade to
-   the incoming one, so there is never a truly blank frame during real
-   navigation even before our own bubble overlay takes over. */
+/* Let supporting browsers hold the outgoing page on screen until the
+   incoming one is ready, so there is never a truly blank frame during real
+   navigation even before our own bubble overlay takes over. This must NOT
+   visibly animate its own crossfade — our bubble overlay is the only motion
+   that should be visible at the swap. By default the browser's built-in
+   view-transition root pseudo-elements crossfade over 250ms on their own,
+   completely uncoordinated with our overlay's timing, which reads as a
+   glitch/flash right as the new page appears. Zeroing their animation
+   duration keeps the "hold the old frame, don't go blank" safety behavior
+   while suppressing the browser's own competing animation. */
 @view-transition {
   navigation: auto;
+}
+
+::view-transition-group(root),
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
 }
 
 .bubble-wipe {
@@ -18,10 +32,19 @@
   inset: 0;
   background: var(--ground, #4568b5);
   opacity: 0;
+}
+
+/* Rising in on the outgoing page. */
+.bubble-wipe.entering .bw-backdrop {
+  opacity: 1;
   transition: opacity 0.35s ease;
 }
 
-.bubble-wipe.active .bw-backdrop,
+/* Fully covered — the shared handoff state, rendered identically on both
+   sides of the navigation. Deliberately no transition here: this class is
+   applied instantly on the incoming page's first paint, and if it carried
+   a transition it would fade in from transparent a second time, briefly
+   exposing the new page through the gaps between bubbles. */
 .bubble-wipe.covered .bw-backdrop {
   opacity: 1;
 }
@@ -31,51 +54,14 @@
   transition: opacity 0.5s ease 0.15s;
 }
 
-.bw-bubble {
+/* The bubbles themselves are canvas-drawn (see bubble-transition.js) rather
+   than individual DOM elements — cheap enough at a couple hundred bubbles a
+   frame that it doesn't need the same layer/paint tricks a DOM version
+   would. */
+.bw-canvas {
   position: absolute;
-  left: var(--left);
-  bottom: -8%;
-  width: var(--size);
-  height: var(--size);
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 26%, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.3) 32%, rgba(255, 255, 255, 0.08) 58%, transparent 74%);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  box-shadow: inset -3px -3px 6px rgba(20, 30, 70, 0.15), inset 2px 2px 3px rgba(255, 255, 255, 0.4);
-  opacity: 0;
-  transform: translate(0, 0) scale(0.35);
-  animation-delay: var(--delay);
-  animation-duration: var(--dur);
-  animation-fill-mode: forwards;
-  will-change: transform, opacity;
-}
-
-.bubble-wipe.active .bw-bubble {
-  animation-name: bw-rise-in;
-  animation-timing-function: cubic-bezier(0.2, 0.6, 0.3, 1);
-}
-
-.bubble-wipe.covered .bw-bubble {
-  animation: none;
-  opacity: 0.9;
-  transform: translate(var(--drift), var(--rise)) scale(1);
-}
-
-.bubble-wipe.leaving .bw-bubble {
-  animation-name: bw-rise-out;
-  animation-timing-function: ease-in;
-  animation-delay: var(--leave-delay);
-  animation-duration: var(--leave-dur);
-}
-
-@keyframes bw-rise-in {
-  0% { transform: translate(0, 0) scale(0.35); opacity: 0; }
-  30% { opacity: 0.9; }
-  100% { transform: translate(var(--drift), var(--rise)) scale(1); opacity: 0.9; }
-}
-
-@keyframes bw-rise-out {
-  0% { transform: translate(var(--drift), var(--rise)) scale(1); opacity: 0.9; }
-  100% { transform: translate(calc(var(--drift) * 1.6), calc(var(--rise) - 25vh)) scale(0.75); opacity: 0; }
+  inset: 0;
+  display: block;
 }
 
 @media (prefers-reduced-motion: reduce) {
