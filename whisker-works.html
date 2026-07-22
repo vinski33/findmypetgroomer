@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Whisker Works — Find My Pet Groomer</title>
+<link rel="stylesheet" href="bubble-transition.css">
+<style>
+  :root {
+    --ground: #4568b5;
+    --ink: #f6efdd;
+    --ink-soft: #e3dcc0;
+    --card: #5779c4;
+    --accent: #e0a824;
+    --accent-ink: #2e1b08;
+    --accent-2: #f0d199;
+    --line: #8a6e45;
+    --focus: #e0a824;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --ground: #17244a;
+      --ink: #f6efdd;
+      --ink-soft: #cfc29c;
+      --card: #22345e;
+      --accent: #f0b93a;
+      --accent-ink: #241404;
+      --accent-2: #efc48a;
+      --line: #7a6440;
+      --focus: #f0b93a;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #17244a;
+    --ink: #f6efdd;
+    --ink-soft: #cfc29c;
+    --card: #22345e;
+    --accent: #f0b93a;
+    --accent-ink: #241404;
+    --accent-2: #efc48a;
+    --line: #7a6440;
+    --focus: #f0b93a;
+  }
+
+  :root[data-theme="light"] {
+    --ground: #4568b5;
+    --ink: #f6efdd;
+    --ink-soft: #e3dcc0;
+    --card: #5779c4;
+    --accent: #e0a824;
+    --accent-ink: #2e1b08;
+    --accent-2: #f0d199;
+    --line: #8a6e45;
+    --focus: #e0a824;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .bubble-decor {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 26%, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0.28) 32%, rgba(255, 255, 255, 0.08) 58%, transparent 74%);
+    border: 1px solid rgba(255, 255, 255, 0.32);
+    box-shadow: inset -3px -3px 6px rgba(20, 30, 70, 0.12), inset 2px 2px 3px rgba(255, 255, 255, 0.35);
+    animation: bubble-float 10s ease-in-out infinite;
+  }
+
+  .bubble--tint {
+    background: radial-gradient(circle at 30% 26%, rgba(255, 255, 255, 0.9), rgba(69, 104, 181, 0.35) 34%, rgba(69, 104, 181, 0.12) 60%, transparent 76%);
+    border-color: rgba(69, 104, 181, 0.4);
+    box-shadow: inset -3px -3px 6px rgba(69, 104, 181, 0.18), inset 2px 2px 3px rgba(255, 255, 255, 0.6);
+  }
+
+  @keyframes bubble-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  .header-decor .b1 { width: 11px; height: 11px; top: 14px; left: 38%; animation-duration: 8s; }
+  .header-decor .b2 { width: 18px; height: 18px; top: 6px; left: 55%; animation-duration: 11s; animation-delay: -4s; }
+  .header-decor .b3 { width: 8px; height: 8px; top: 30px; left: 64%; animation-duration: 9s; animation-delay: -2s; }
+  .header-decor .b4 { width: 14px; height: 14px; top: 2px; left: 79%; animation-duration: 12s; animation-delay: -6s; }
+  .header-decor .b5 { width: 6px; height: 6px; top: 24px; left: 91%; animation-duration: 7s; animation-delay: -1s; }
+  .header-decor .b6 { width: 22px; height: 22px; top: -6px; left: 95%; animation-duration: 13s; animation-delay: -9s; }
+
+  .phero-decor .p1 { width: 40px; height: 40px; top: 6%; left: 88%; animation-duration: 13s; }
+  .phero-decor .p2 { width: 18px; height: 18px; top: 30%; left: 95%; animation-duration: 9s; animation-delay: -3s; }
+  .phero-decor .p3 { width: 12px; height: 12px; top: 70%; left: 91%; animation-duration: 8s; animation-delay: -5s; }
+  .phero-decor .p4 { width: 26px; height: 26px; top: 80%; left: 5%; animation-duration: 11s; animation-delay: -7s; }
+  .phero-decor .p5 { width: 9px; height: 9px; top: 15%; left: 3%; animation-duration: 7.5s; animation-delay: -2s; }
+
+  .contact-decor .t1 { width: 30px; height: 30px; top: 10%; left: 92%; animation-duration: 12s; }
+  .contact-decor .t2 { width: 14px; height: 14px; top: 60%; left: 96%; animation-duration: 9s; animation-delay: -4s; }
+  .contact-decor .t3 { width: 10px; height: 10px; top: 15%; left: 3%; animation-duration: 8s; animation-delay: -2s; }
+  .contact-decor .t4 { width: 20px; height: 20px; top: 75%; left: 6%; animation-duration: 11s; animation-delay: -6s; }
+
+  .footer-decor .f1 { width: 12px; height: 12px; top: 20%; left: 12%; animation-duration: 10s; }
+  .footer-decor .f2 { width: 7px; height: 7px; top: 55%; left: 6%; animation-duration: 8s; animation-delay: -2s; }
+  .footer-decor .f3 { width: 15px; height: 15px; top: 30%; left: 96%; animation-duration: 11s; animation-delay: -4s; }
+
+  .wrap {
+    max-width: 74rem;
+    margin: 0 auto;
+    padding: 0 1.75rem;
+  }
+
+  a { color: inherit; }
+
+  .mono {
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+  }
+
+  .eyebrow {
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    font-weight: 600;
+  }
+
+  h1, h2, h3 {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+    font-weight: 400;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  :focus-visible {
+    outline: 2.5px solid var(--focus);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+
+  /* ---------- header ---------- */
+
+  header.site {
+    position: relative;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .site-bar {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.15rem 0;
+  }
+
+  .wordmark {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    text-decoration: none;
+  }
+
+  .comb {
+    display: flex;
+    align-items: flex-end;
+    gap: 2.5px;
+    height: 18px;
+  }
+
+  .comb span {
+    display: block;
+    width: 2.5px;
+    background: var(--accent);
+    border-radius: 1px;
+  }
+
+  .comb span:nth-child(1) { height: 60%; }
+  .comb span:nth-child(2) { height: 100%; }
+  .comb span:nth-child(3) { height: 75%; }
+  .comb span:nth-child(4) { height: 100%; }
+  .comb span:nth-child(5) { height: 60%; }
+
+  .wordmark-text {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+    font-size: 1.15rem;
+    letter-spacing: 0.01em;
+  }
+
+  .site-nav {
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+    font-size: 0.92rem;
+  }
+
+  .site-nav a {
+    text-decoration: none;
+    color: var(--ink-soft);
+  }
+
+  .site-nav a:hover { color: var(--ink); }
+
+  .nav-cta {
+    background: var(--accent);
+    color: var(--accent-ink) !important;
+    padding: 0.5rem 1rem;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+
+  /* ---------- breadcrumb ---------- */
+
+  .breadcrumb {
+    padding: 1.1rem 0 0;
+  }
+
+  .breadcrumb a {
+    font-size: 0.85rem;
+    text-decoration: none;
+    color: var(--ink-soft);
+  }
+
+  .breadcrumb a:hover { color: var(--ink); }
+
+  /* ---------- profile hero ---------- */
+
+  .p-hero {
+    position: relative;
+    padding: 2rem 0 3rem;
+  }
+
+  .p-hero-inner {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 2rem;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .avatar {
+    position: relative;
+    flex: 0 0 auto;
+    width: 260px;
+    height: 260px;
+    border-radius: 8px;
+    background: var(--card);
+    border: 2px solid var(--line);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .avatar::before {
+    content: "";
+    position: absolute;
+    top: 10%;
+    left: 14%;
+    width: 46%;
+    height: 46%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.05) 70%, transparent 75%);
+  }
+
+  .avatar-initials {
+    position: relative;
+    z-index: 1;
+    font-size: 5rem;
+    color: var(--ink-soft);
+  }
+
+  .avatar-caption {
+    margin-top: 0.6rem;
+    text-align: center;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+  }
+
+  .p-identity { flex: 1 1 20rem; min-width: 16rem; }
+
+  .p-hero h1 {
+    font-size: clamp(1.9rem, 3vw + 1rem, 2.6rem);
+    margin-top: 0.4rem;
+  }
+
+  .p-neighborhood {
+    font-size: 0.95rem;
+    color: var(--accent-2);
+    font-weight: 600;
+    margin-top: 0.3rem;
+  }
+
+  .p-tagline {
+    margin-top: 0.85rem;
+    max-width: 34rem;
+    color: var(--ink-soft);
+    font-size: 1.02rem;
+  }
+
+  .p-tag-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.1rem;
+  }
+
+  .tag {
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.28rem 0.55rem;
+    border-radius: 2px;
+  }
+
+  .tag-specialty {
+    background: color-mix(in srgb, var(--accent-2) 20%, transparent);
+    color: var(--accent-2);
+    border: 1px solid color-mix(in srgb, var(--accent-2) 50%, transparent);
+  }
+
+  .tag-price {
+    background: color-mix(in srgb, var(--accent) 20%, transparent);
+    color: var(--accent);
+    border: 1px solid color-mix(in srgb, var(--accent) 50%, transparent);
+    font-weight: 700;
+  }
+
+  .p-links {
+    margin-top: 1.25rem;
+    display: flex;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .website-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--accent-2);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent-2) 60%, transparent);
+    padding-bottom: 1px;
+  }
+
+  .website-link:hover { color: var(--ink); border-color: var(--ink); }
+
+  .contact-jump {
+    display: inline-flex;
+    background: var(--accent);
+    color: var(--accent-ink);
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.92rem;
+    padding: 0.55rem 1.1rem;
+    border-radius: 4px;
+  }
+
+  .contact-jump:hover { filter: brightness(1.06); }
+
+  /* ---------- body ---------- */
+
+  .p-body {
+    padding: 1rem 0 3.5rem;
+  }
+
+  .p-grid {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .p-main h2 {
+    font-size: 1.55rem;
+    margin-bottom: 1rem;
+  }
+
+  .p-main section + section {
+    margin-top: 2.75rem;
+  }
+
+  .p-main p {
+    color: var(--ink-soft);
+    font-size: 0.98rem;
+    max-width: 40rem;
+  }
+
+  .p-main p + p { margin-top: 0.9rem; }
+
+  .services-table {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .services-table li {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    padding: 0.9rem 1.15rem;
+  }
+
+  .services-table li + li {
+    border-top: 1px dashed var(--line);
+  }
+
+  .service-name { font-size: 0.96rem; }
+
+  .service-note {
+    display: block;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    margin-top: 0.15rem;
+  }
+
+  .service-price {
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+    font-weight: 700;
+    color: var(--accent-2);
+    white-space: nowrap;
+  }
+
+  /* ---------- sidebar ---------- */
+
+  .info-card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 1.5rem;
+  }
+
+  .info-card + .info-card { margin-top: 1.5rem; }
+
+  .info-card h3 {
+    font-size: 1.05rem;
+    margin-bottom: 1rem;
+  }
+
+  .hours-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .hours-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid color-mix(in srgb, var(--line) 60%, transparent);
+    font-size: 0.9rem;
+  }
+
+  .hours-list li:last-child { border-bottom: none; }
+
+  .hours-day { font-weight: 600; }
+
+  .hours-time {
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+    color: var(--ink-soft);
+  }
+
+  .contact-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    font-size: 0.9rem;
+  }
+
+  .contact-list dt {
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+    margin: 0 0 0.2rem;
+  }
+
+  .contact-list dd { margin: 0; }
+
+  /* ---------- contact section ---------- */
+
+  .contact-section {
+    position: relative;
+    background: var(--ink);
+    color: var(--ground);
+    padding: 4rem 0;
+  }
+
+  .contact-section .wrap {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  .contact-section h2 {
+    color: var(--ground);
+    font-size: 2rem;
+  }
+
+  .contact-section .eyebrow { color: var(--accent); }
+
+  .contact-copy p {
+    color: color-mix(in srgb, var(--ground) 78%, transparent);
+    max-width: 26rem;
+    margin-top: 1rem;
+    font-size: 1rem;
+  }
+
+  .contact-copy .contact-list {
+    margin-top: 1.75rem;
+  }
+
+  .contact-copy .contact-list dt { color: color-mix(in srgb, var(--ground) 65%, transparent); }
+
+  .contact-form {
+    background: color-mix(in srgb, var(--ground) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--ground) 22%, transparent);
+    border-radius: 6px;
+    padding: 1.75rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin-bottom: 1.1rem;
+  }
+
+  .field label {
+    font-size: 0.78rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--ground) 70%, transparent);
+    font-family: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+  }
+
+  .field input,
+  .field textarea {
+    font: inherit;
+    font-size: 0.95rem;
+    background: color-mix(in srgb, var(--ground) 10%, transparent);
+    border: 1px solid color-mix(in srgb, var(--ground) 30%, transparent);
+    border-radius: 4px;
+    padding: 0.65rem 0.75rem;
+    color: var(--ground);
+    resize: vertical;
+  }
+
+  .field input::placeholder,
+  .field textarea::placeholder { color: color-mix(in srgb, var(--ground) 45%, transparent); }
+
+  .submit-btn {
+    width: 100%;
+    background: var(--accent);
+    color: var(--accent-ink);
+    border: none;
+    border-radius: 4px;
+    padding: 0.75rem 1rem;
+    font: inherit;
+    font-size: 0.98rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 0.3rem;
+  }
+
+  .submit-btn:hover { filter: brightness(1.08); }
+
+  .form-note {
+    font-size: 0.78rem;
+    color: color-mix(in srgb, var(--ground) 55%, transparent);
+    margin: 0.9rem 0 0;
+  }
+
+  @media (max-width: 44rem) {
+    .p-grid { grid-template-columns: 1fr; }
+    .contact-section .wrap { grid-template-columns: 1fr; }
+  }
+
+  /* ---------- footer ---------- */
+
+  footer.site {
+    position: relative;
+    padding: 2rem 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .footer-row {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+  }
+</style>
+</head>
+<body>
+<script src="bubble-transition.js"></script>
+
+<header class="site">
+  <div class="bubble-decor header-decor" aria-hidden="true">
+    <span class="bubble b1"></span>
+    <span class="bubble b2"></span>
+    <span class="bubble b3"></span>
+    <span class="bubble b4"></span>
+    <span class="bubble b5"></span>
+    <span class="bubble b6"></span>
+  </div>
+  <div class="wrap site-bar">
+    <a class="wordmark" href="index.html">
+      <span class="comb" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></span>
+      <span class="wordmark-text">Find My Pet Groomer</span>
+    </a>
+    <nav class="site-nav">
+      <a href="index.html#listings">Browse groomers</a>
+      <a href="index.html#signup" class="nav-cta">List Your Business</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap breadcrumb">
+  <a href="index.html#listings">&larr; Back to all groomers</a>
+</div>
+
+<main>
+  <section class="p-hero">
+    <div class="bubble-decor phero-decor" aria-hidden="true">
+      <span class="bubble p1"></span>
+      <span class="bubble p2"></span>
+      <span class="bubble p3"></span>
+      <span class="bubble p4"></span>
+      <span class="bubble p5"></span>
+    </div>
+    <div class="wrap p-hero-inner">
+      <div class="avatar">
+        <span class="avatar-initials mono">WW</span>
+      </div>
+      <div class="p-identity">
+        <p class="eyebrow">Groomer profile</p>
+        <h1>Whisker Works</h1>
+        <p class="p-neighborhood">Old Town</p>
+        <p class="p-tagline">A quiet, dog-free studio built for cats who'd rather not share a waiting room. Sedation-free nail trims and low-stress handling are the specialty.</p>
+        <div class="p-tag-row">
+          <span class="tag tag-specialty">Cats &amp; small pets</span>
+          <span class="tag tag-price">$40–$70</span>
+        </div>
+        <div class="p-links">
+          <a class="website-link" href="https://whiskerworksgrooming.example">whiskerworksgrooming.example &nearr;</a>
+          <a class="contact-jump" href="#contact">Contact this groomer</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="p-body">
+    <div class="wrap p-grid">
+      <div class="p-main">
+        <section>
+          <h2>About Whisker Works</h2>
+          <p>Whisker Works exists because its founder, a longtime vet tech named Marcus Lee, kept watching cat owners cancel grooming appointments the moment they heard barking through the wall. So the Old Town studio was built without a single dog in it — separate entrance, separate air handling, and a waiting area that stays quiet enough for a nervous cat to actually settle down before their appointment.</p>
+          <p>Every groomer on staff trained specifically in feline handling: reading stress signals, working in short sessions instead of one long one, and skipping sedation entirely in favor of patience and the right wrap technique. The studio also takes rabbits, guinea pigs, and other small pets by request, on the same no-dogs-in-the-building policy.</p>
+        </section>
+
+        <section>
+          <h2>Services &amp; pricing</h2>
+          <ul class="services-table">
+            <li>
+              <span class="service-name">Cat bath &amp; brush<span class="service-note">Includes ear cleaning and nail file</span></span>
+              <span class="service-price">$45&ndash;$55</span>
+            </li>
+            <li>
+              <span class="service-name">Lion cut / full shave<span class="service-note">Long-haired and matted coats</span></span>
+              <span class="service-price">$65&ndash;$70</span>
+            </li>
+            <li>
+              <span class="service-name">Sedation-free nail trim</span>
+              <span class="service-price">$18</span>
+            </li>
+            <li>
+              <span class="service-name">Ear cleaning</span>
+              <span class="service-price">$12</span>
+            </li>
+            <li>
+              <span class="service-name">De-shedding treatment<span class="service-note">Add-on to any groom</span></span>
+              <span class="service-price">+$15</span>
+            </li>
+            <li>
+              <span class="service-name">Small pet grooming<span class="service-note">Rabbits, guinea pigs, by request</span></span>
+              <span class="service-price">$40&ndash;$50</span>
+            </li>
+          </ul>
+        </section>
+      </div>
+
+      <aside class="p-side">
+        <div class="info-card">
+          <h3>Business hours</h3>
+          <ul class="hours-list mono">
+            <li><span class="hours-day">Wednesday &ndash; Saturday</span><span class="hours-time">10:00 AM &ndash; 5:00 PM</span></li>
+            <li><span class="hours-day">Sunday</span><span class="hours-time">11:00 AM &ndash; 3:00 PM</span></li>
+            <li><span class="hours-day">Monday &ndash; Tuesday</span><span class="hours-time">Closed</span></li>
+          </ul>
+        </div>
+
+        <div class="info-card">
+          <h3>Details</h3>
+          <dl class="contact-list">
+            <div>
+              <dt>Address</dt>
+              <dd>119 Old Town Square, Old Town</dd>
+            </div>
+            <div>
+              <dt>Phone</dt>
+              <dd>(555) 088-3410</dd>
+            </div>
+            <div>
+              <dt>Website</dt>
+              <dd><a class="website-link" href="https://whiskerworksgrooming.example">whiskerworksgrooming.example</a></dd>
+            </div>
+          </dl>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="contact-section" id="contact">
+    <div class="bubble-decor contact-decor" aria-hidden="true">
+      <span class="bubble bubble--tint t1"></span>
+      <span class="bubble bubble--tint t2"></span>
+      <span class="bubble bubble--tint t3"></span>
+      <span class="bubble bubble--tint t4"></span>
+    </div>
+    <div class="wrap">
+      <div class="contact-copy">
+        <p class="eyebrow">Get in touch</p>
+        <h2>Contact this groomer</h2>
+        <p>Send Whisker Works a message directly, or reach out using the details below. They typically reply within one business day.</p>
+        <dl class="contact-list">
+          <div>
+            <dt>Phone</dt>
+            <dd>(555) 088-3410</dd>
+          </div>
+          <div>
+            <dt>Address</dt>
+            <dd>119 Old Town Square, Old Town</dd>
+          </div>
+        </dl>
+      </div>
+
+      <form class="contact-form" aria-label="Contact Whisker Works">
+        <div class="field">
+          <label for="c-name">Your name</label>
+          <input id="c-name" type="text" placeholder="Jamie Rivera" />
+        </div>
+        <div class="field">
+          <label for="c-email">Your email</label>
+          <input id="c-email" type="email" placeholder="you@example.com" />
+        </div>
+        <div class="field">
+          <label for="c-message">Message</label>
+          <textarea id="c-message" rows="4" placeholder="My cat gets stressed at the vet, do you have a quiet time slot available..."></textarea>
+        </div>
+        <button type="submit" class="submit-btn">Send message</button>
+        <p class="form-note">This form is illustrative on this preview and doesn't send a real message.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer class="site">
+  <div class="bubble-decor footer-decor" aria-hidden="true">
+    <span class="bubble f1"></span>
+    <span class="bubble f2"></span>
+    <span class="bubble f3"></span>
+  </div>
+  <div class="wrap footer-row">
+    <span>Find My Pet Groomer &mdash; a local grooming directory.</span>
+    <a href="index.html">&larr; Back to the directory</a>
+  </div>
+</footer>
+
+</body>
+</html>
