@@ -3,7 +3,7 @@
 
   var REVEAL_DELAY_MS = 150; // intentional dwell while fully covered — not a completion guess
   var REVEAL_FALLBACK_MS = 1500;
-  var BUBBLE_COUNT = 3000;
+  var BUBBLE_COUNT = 450;
   var FLAG = 'bubbleWipeCover';
   var SPECS_KEY = 'bubbleWipeSpecs';
   var MAX_DPR = 2;
